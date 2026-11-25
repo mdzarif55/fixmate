@@ -9,8 +9,9 @@ import {
   notFoundHandler,
 } from "./middleware/error.middleware.js";
 import { createApiRouter } from "./routes/index.js";
+import { handleStripeWebhook } from "./webhooks/stripe.webhook.js";
 
-export function createApp(webhookHandler?: express.RequestHandler) {
+export function createApp(webhookHandler: express.RequestHandler = handleStripeWebhook) {
   const app = express();
 
   const allowedOrigins = Array.from(
