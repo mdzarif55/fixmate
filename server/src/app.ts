@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import helmet from "helmet";
+import * as helmetModule from "helmet";
 import { toNodeHandler } from "better-auth/node";
 import { getAuth } from "./config/auth.js";
 import { env } from "./config/env.js";
@@ -10,6 +10,18 @@ import {
 } from "./middleware/error.middleware.js";
 import { createApiRouter } from "./routes/index.js";
 import { handleStripeWebhook } from "./webhooks/stripe.webhook.js";
+
+type HelmetMiddlewareFactory = (options?: {
+  crossOriginResourcePolicy?: {
+    policy?: "same-origin" | "same-site" | "cross-origin";
+  };
+}) => express.RequestHandler;
+
+const helmetFn: HelmetMiddlewareFactory =
+  typeof helmetModule === "function"
+    ? (helmetModule as unknown as HelmetMiddlewareFactory)
+    : (helmetModule as unknown as { default: HelmetMiddlewareFactory })
+        .default;
 
 export function createApp(webhookHandler: express.RequestHandler = handleStripeWebhook) {
   const app = express();
@@ -23,7 +35,7 @@ export function createApp(webhookHandler: express.RequestHandler = handleStripeW
   );
 
   app.use(
-    helmet({
+    helmetFn({
       crossOriginResourcePolicy: { policy: "cross-origin" },
     })
   );
