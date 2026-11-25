@@ -1,9 +1,8 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
 import cors from "cors";
 import express from "express";
 import * as helmetModule from "helmet";
 import { toNodeHandler } from "better-auth/node";
-import { getAuth, initAuth } from "./config/auth.js";
+import { getAuth, hasInitializedAuth, initAuth } from "./config/auth.js";
 import { env } from "./config/env.js";
 import {
   connectToDatabase,
@@ -29,7 +28,25 @@ const helmetFn: HelmetMiddlewareFactory =
     : (helmetModule as unknown as { default: HelmetMiddlewareFactory })
         .default;
 
-export function createApp(webhookHandler: express.RequestHandler = handleStripeWebhook) {
+let initPromise: Promise<void> | null = null;
+
+async function ensureServerlessInitialized() {
+  if (hasInitializedAuth()) return;
+  if (!initPromise) {
+    initPromise = (async () => {
+      await connectToDatabase(env.MONGODB_URI);
+      initAuth(getDb(), getMongoClient());
+    })().catch((err) => {
+      initPromise = null;
+      throw err;
+    });
+  }
+  await initPromise;
+}
+
+export function createApp(
+  webhookHandler: express.RequestHandler = handleStripeWebhook
+) {
   const app = express();
 
   const allowedOrigins = Array.from(
@@ -39,6 +56,16 @@ export function createApp(webhookHandler: express.RequestHandler = handleStripeW
       )
     )
   );
+
+  // Lazy DB + BetterAuth bootstrap for serverless environments (no-op when already initialized)
+  app.use(async (_req, _res, next) => {
+    try {
+      await ensureServerlessInitialized();
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.use(
     helmetFn({
@@ -85,26 +112,5 @@ export function createApp(webhookHandler: express.RequestHandler = handleStripeW
   return app;
 }
 
-let serverlessAppPromise: Promise<ReturnType<typeof createApp>> | null = null;
-
-function getServerlessApp() {
-  if (!serverlessAppPromise) {
-    serverlessAppPromise = (async () => {
-      await connectToDatabase(env.MONGODB_URI);
-      initAuth(getDb(), getMongoClient());
-      return createApp();
-    })().catch((err) => {
-      serverlessAppPromise = null;
-      throw err;
-    });
-  }
-  return serverlessAppPromise;
-}
-
-export default async function handler(
-  req: IncomingMessage,
-  res: ServerResponse
-) {
-  const app = await getServerlessApp();
-  return app(req as never, res as never);
-}
+const app = createApp();
+export default app;

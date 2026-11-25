@@ -132,6 +132,10 @@ export function initAuth(db: Db, client?: MongoClient): AuthInstance {
   return authInstance;
 }
 
+export function hasInitializedAuth(): boolean {
+  return authInstance !== null;
+}
+
 export function getAuth(): AuthInstance {
   if (!authInstance) {
     throw new Error("Auth has not been initialized. Call initAuth() first.");
