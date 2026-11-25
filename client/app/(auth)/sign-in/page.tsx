@@ -8,6 +8,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { DemoAccountsCard } from "@/components/auth/demo-accounts-card";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -182,6 +183,13 @@ function SignInFormInner() {
           ) : null}
           <span>Continue with Google</span>
         </Button>
+
+        <DemoAccountsCard
+          onSelect={(email, password) => {
+            form.setValue("email", email);
+            form.setValue("password", password);
+          }}
+        />
 
         <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
