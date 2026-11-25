@@ -28,7 +28,10 @@ export function createAuth(db: Db, client?: MongoClient) {
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
     trustedOrigins,
-    database: mongodbAdapter(db, client ? { client } : undefined),
+    database: mongodbAdapter(db, {
+      client,
+      transaction: false,
+    }),
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 6,
