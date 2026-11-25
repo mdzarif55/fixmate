@@ -101,10 +101,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   React.useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  React.useEffect(() => {
     if (isPending) return;
     if (!user) {
       router.replace(`/sign-in?callbackUrl=${encodeURIComponent(pathname)}`);
@@ -154,6 +150,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <Link
             key={item.href}
             href={item.href}
+            onClick={() => setMobileOpen(false)}
             title={isCollapsed ? item.label : undefined}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",

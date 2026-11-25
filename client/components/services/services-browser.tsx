@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { apiFetch } from "@/lib/api";
 import {
   SERVICE_CATEGORIES,
   SERVICE_MODES,
@@ -46,55 +45,13 @@ export function ServicesBrowser({
 }: ServicesBrowserProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const [data, setData] = React.useState<PaginatedServicesResponse>(initialData);
-  const [loading, setLoading] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
   const [searchInput, setSearchInput] = React.useState(initialQuery.search);
 
-  const currentSearch = searchParams.get("search") || "";
-  const currentCategory = searchParams.get("category") || "all";
-  const currentMode = searchParams.get("serviceMode") || "all";
-  const currentSort = searchParams.get("sort") || "newest";
-  const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
-
-  React.useEffect(() => {
-    setSearchInput(currentSearch);
-  }, [currentSearch]);
-
-  const fetchServices = React.useCallback(async (queryString: string) => {
-    setLoading(true);
-    try {
-      const result = await apiFetch<PaginatedServicesResponse>(
-        `/api/services?${queryString}`
-      );
-      setData(result);
-    } catch {
-      setData({
-        services: [],
-        pagination: { total: 0, page: 1, limit: 9, totalPages: 1 },
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    const params = new URLSearchParams();
-    if (currentSearch) params.set("search", currentSearch);
-    if (currentCategory !== "all") params.set("category", currentCategory);
-    if (currentMode !== "all") params.set("serviceMode", currentMode);
-    if (currentSort) params.set("sort", currentSort);
-    params.set("page", String(currentPage));
-    params.set("limit", "9");
-    fetchServices(params.toString());
-  }, [
-    currentSearch,
-    currentCategory,
-    currentMode,
-    currentSort,
-    currentPage,
-    fetchServices,
-  ]);
+  const currentSearch = initialQuery.search;
+  const currentCategory = initialQuery.category;
+  const currentMode = initialQuery.serviceMode;
+  const currentSort = initialQuery.sort;
 
   const updateQuery = (
     updates: Record<string, string | null>,
@@ -112,7 +69,9 @@ export function ServicesBrowser({
       params.delete("page");
     }
     const qs = params.toString();
-    router.push(qs ? `/services?${qs}` : "/services");
+    startTransition(() => {
+      router.push(qs ? `/services?${qs}` : "/services");
+    });
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -122,7 +81,9 @@ export function ServicesBrowser({
 
   const handleResetFilters = () => {
     setSearchInput("");
-    router.push("/services");
+    startTransition(() => {
+      router.push("/services");
+    });
   };
 
   const hasActiveFilters =
@@ -131,7 +92,7 @@ export function ServicesBrowser({
     currentMode !== "all" ||
     currentSort !== "newest";
 
-  const { services, pagination } = data;
+  const { services, pagination } = initialData;
 
   return (
     <div className="space-y-8">
@@ -157,7 +118,7 @@ export function ServicesBrowser({
               placeholder="Search by service title or category..."
               containerClassName="flex-1"
             />
-            <Button type="submit" variant="secondary">
+            <Button type="submit" variant="secondary" disabled={isPending}>
               Search
             </Button>
           </form>
@@ -240,7 +201,7 @@ export function ServicesBrowser({
       </div>
 
       {/* Results Grid */}
-      {loading ? (
+      {isPending ? (
         <ServiceGridSkeleton count={6} />
       ) : services.length === 0 ? (
         <EmptyState
@@ -277,7 +238,7 @@ export function ServicesBrowser({
             <Button
               variant="outline"
               size="sm"
-              disabled={pagination.page <= 1 || loading}
+              disabled={pagination.page <= 1 || isPending}
               onClick={() =>
                 updateQuery({ page: String(pagination.page - 1) }, false)
               }
@@ -292,7 +253,7 @@ export function ServicesBrowser({
                   key={p}
                   variant={p === pagination.page ? "default" : "outline"}
                   size="sm"
-                  disabled={loading}
+                  disabled={isPending}
                   onClick={() => updateQuery({ page: String(p) }, false)}
                   className="hidden sm:inline-flex min-w-9"
                 >
@@ -303,7 +264,7 @@ export function ServicesBrowser({
             <Button
               variant="outline"
               size="sm"
-              disabled={pagination.page >= pagination.totalPages || loading}
+              disabled={pagination.page >= pagination.totalPages || isPending}
               onClick={() =>
                 updateQuery({ page: String(pagination.page + 1) }, false)
               }

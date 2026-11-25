@@ -92,7 +92,11 @@ export default async function ServicesPage({
       </div>
 
       <Suspense fallback={<ServiceGridSkeleton count={6} />}>
-        <ServicesBrowser initialData={initialData} initialQuery={query} />
+        <ServicesBrowser
+          key={JSON.stringify(query)}
+          initialData={initialData}
+          initialQuery={query}
+        />
       </Suspense>
     </div>
   );
