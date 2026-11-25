@@ -77,9 +77,10 @@ export function RepairRequestForm({
     },
   });
 
-  React.useEffect(() => {
-    if (open) {
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
       setSubmitted(false);
+    } else {
       form.reset({
         customerPhone: user.phone || "",
         address: user.area || "",
@@ -87,7 +88,8 @@ export function RepairRequestForm({
         problemDescription: "",
       });
     }
-  }, [open, user.phone, user.area, form]);
+    onOpenChange(nextOpen);
+  };
 
   const onSubmit = async (values: BookingFormValues) => {
     try {
@@ -111,7 +113,7 @@ export function RepairRequestForm({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Request Repair Service</DialogTitle>
