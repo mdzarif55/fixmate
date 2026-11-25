@@ -18,7 +18,11 @@ export async function connectToDatabase(uri = env.MONGODB_URI): Promise<Db> {
 
   client = new MongoClient(uri);
   await client.connect();
-  db = client.db();
+  const resolvedDb = client.db();
+  db =
+    !resolvedDb.databaseName || resolvedDb.databaseName === "test"
+      ? client.db("fixmate")
+      : resolvedDb;
 
   if (!indexesInitialized) {
     await ensureIndexes(db);
@@ -43,7 +47,11 @@ export function getMongoClient(): MongoClient {
 
 export function getDb(): Db {
   if (!db) {
-    db = getMongoClient().db();
+    const resolvedDb = getMongoClient().db();
+    db =
+      !resolvedDb.databaseName || resolvedDb.databaseName === "test"
+        ? getMongoClient().db("fixmate")
+        : resolvedDb;
   }
   return db;
 }

@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { initAuth } from "../config/auth.js";
 import { env } from "../config/env.js";
 import {
@@ -543,9 +545,10 @@ export async function runSeed() {
   console.log("  Customer:   customer@fixmate.app / Customer@1234");
 }
 
+const currentFilePath = fileURLToPath(import.meta.url);
 if (
   process.argv[1] &&
-  import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))
+  path.resolve(process.argv[1]) === path.resolve(currentFilePath)
 ) {
   runSeed()
     .then(() => closeDatabase())
