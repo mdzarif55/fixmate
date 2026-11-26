@@ -8,10 +8,10 @@ FixMate is a full-stack on-demand device and home appliance repair marketplace b
 
 ## Live URLs & Repositories
 
-- **Live Web App (Vercel):** `<DEPLOYED_FRONTEND_URL_PLACEHOLDER>`
-- **Live API Server (Render):** `<DEPLOYED_BACKEND_URL_PLACEHOLDER>`
-- **Frontend Repository:** `<FRONTEND_REPO_URL_PLACEHOLDER>`
-- **Backend / Monorepo Repository:** `<BACKEND_REPO_URL_PLACEHOLDER>`
+- **Live Web App (Vercel):** https://fixmate-sable-eta.vercel.app
+- **Live API Server (Vercel):** https://fixmate-server-silk-pi.vercel.app
+- **Frontend Repository:** https://github.com/mdzarif55/fixmate/tree/main/client
+- **Backend / Monorepo Repository:** https://github.com/mdzarif55/fixmate
 
 ---
 

@@ -51,9 +51,11 @@ export function createApp(
 
   const allowedOrigins = Array.from(
     new Set(
-      [env.CLIENT_URL, env.BETTER_AUTH_URL, "http://localhost:3000"].filter(
-        Boolean
-      )
+      [
+        ...(env.CLIENT_URL ? env.CLIENT_URL.split(",").map((s) => s.trim()) : []),
+        env.BETTER_AUTH_URL,
+        "http://localhost:3000",
+      ].filter(Boolean)
     )
   );
 
@@ -79,7 +81,7 @@ export function createApp(
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
-          callback(new Error(`Origin ${origin} not allowed by CORS`));
+          callback(null, false);
         }
       },
       credentials: true,
