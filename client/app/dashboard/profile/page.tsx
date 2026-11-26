@@ -47,17 +47,24 @@ export default function ProfilePage() {
     },
   });
 
+  const { reset } = form;
+  const userId = user?.id;
+  const userName = user?.name || "";
+  const userPhone = user?.phone || "";
+  const userArea = user?.area || "";
+  const userBio = user?.bio || "";
+  const userImage = user?.image || null;
+
   React.useEffect(() => {
-    if (user) {
-      form.reset({
-        name: user.name || "",
-        phone: user.phone || "",
-        area: user.area || "",
-        bio: user.bio || "",
-        image: user.image || null,
-      });
-    }
-  }, [user, form]);
+    if (!userId) return;
+    reset({
+      name: userName,
+      phone: userPhone,
+      area: userArea,
+      bio: userBio,
+      image: userImage,
+    });
+  }, [userId, userName, userPhone, userArea, userBio, userImage, reset]);
 
   const imageValue = form.watch("image");
 

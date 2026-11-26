@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
@@ -36,19 +37,43 @@ export function useAuthUser() {
       })
     | undefined;
 
-  const user: SessionUser | null = rawUser
-    ? {
-        id: rawUser.id,
-        name: rawUser.name,
-        email: rawUser.email,
-        image: rawUser.image ?? null,
-        role: ((rawUser.role as string) || "customer") as UserRole,
-        phone: (rawUser.phone as string) || "",
-        area: (rawUser.area as string) || "",
-        bio: (rawUser.bio as string) || "",
-        plan: rawUser.plan === "pro" ? "pro" : "free",
-      }
-    : null;
+  const userId = rawUser?.id;
+  const userName = rawUser?.name;
+  const userEmail = rawUser?.email;
+  const userImage = rawUser?.image ?? null;
+  const userRole = ((rawUser?.role as string) || "customer") as UserRole;
+  const userPhone = (rawUser?.phone as string) || "";
+  const userArea = (rawUser?.area as string) || "";
+  const userBio = (rawUser?.bio as string) || "";
+  const userPlan: "free" | "pro" = rawUser?.plan === "pro" ? "pro" : "free";
+
+  const user: SessionUser | null = React.useMemo(
+    () =>
+      userId && userName && userEmail
+        ? {
+            id: userId,
+            name: userName,
+            email: userEmail,
+            image: userImage,
+            role: userRole,
+            phone: userPhone,
+            area: userArea,
+            bio: userBio,
+            plan: userPlan,
+          }
+        : null,
+    [
+      userId,
+      userName,
+      userEmail,
+      userImage,
+      userRole,
+      userPhone,
+      userArea,
+      userBio,
+      userPlan,
+    ]
+  );
 
   const signOut = async () => {
     await authClient.signOut();
