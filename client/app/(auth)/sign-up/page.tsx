@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getDashboardPathByRole } from "@/hooks/use-auth-user";
+import { getPostAuthRedirectPath } from "@/hooks/use-auth-user";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +74,7 @@ function SignUpFormInner() {
       toast.success("Account created! Welcome to FixMate.");
       const safeCallback =
         callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : null;
-      router.push(safeCallback || getDashboardPathByRole(values.role));
+      router.push(safeCallback || getPostAuthRedirectPath(values.role));
       router.refresh();
     } catch {
       toast.error("Sign up failed. Please try again.");
@@ -85,9 +85,7 @@ function SignUpFormInner() {
     setGoogleLoading(true);
     try {
       const safeCallback =
-        callbackUrl && callbackUrl.startsWith("/")
-          ? callbackUrl
-          : "/dashboard/customer";
+        callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/";
       await authClient.signIn.social({
         provider: "google",
         callbackURL: safeCallback,

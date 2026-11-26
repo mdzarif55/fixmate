@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getDashboardPathByRole } from "@/hooks/use-auth-user";
+import { getPostAuthRedirectPath } from "@/hooks/use-auth-user";
 import { authClient } from "@/lib/auth-client";
 
 const signInSchema = z.object({
@@ -66,7 +66,7 @@ function SignInFormInner() {
         router.push(safeCallback);
       } else {
         const userRole = (data?.user as { role?: string } | undefined)?.role;
-        router.push(getDashboardPathByRole(userRole));
+        router.push(getPostAuthRedirectPath(userRole));
       }
       router.refresh();
     } catch {
@@ -78,9 +78,7 @@ function SignInFormInner() {
     setGoogleLoading(true);
     try {
       const safeCallback =
-        callbackUrl && callbackUrl.startsWith("/")
-          ? callbackUrl
-          : "/dashboard";
+        callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/";
       await authClient.signIn.social({
         provider: "google",
         callbackURL: safeCallback,

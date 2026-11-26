@@ -27,6 +27,14 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getDashboardPathByRole, useAuthUser } from "@/hooks/use-auth-user";
 import type { UserRole } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -301,20 +309,64 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <Link href="/">Back to Home</Link>
             </Button>
             <ThemeToggle />
-            <Link
-              href="/dashboard/profile"
-              className="flex items-center gap-2.5 rounded-full border border-border bg-background py-1 pl-1 pr-3 transition-colors hover:bg-secondary"
-            >
-              <UserAvatar
-                name={user.name}
-                image={user.image}
-                className="h-7 w-7"
-              />
-              <span className="hidden max-w-[130px] truncate text-sm font-medium sm:inline">
-                {user.name}
-              </span>
-              <StatusBadge status={user.role} className="text-[10px] px-2 py-0" />
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Open profile menu"
+                  className="flex items-center gap-2.5 rounded-full border border-border bg-background py-1 pl-1 pr-3 transition-colors hover:bg-secondary cursor-pointer"
+                >
+                  <UserAvatar
+                    name={user.name}
+                    image={user.image}
+                    className="h-7 w-7"
+                  />
+                  <span className="hidden max-w-[130px] truncate text-sm font-medium sm:inline">
+                    {user.name}
+                  </span>
+                  <StatusBadge status={user.role} className="text-[10px] px-2 py-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {user.name}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={getDashboardPathByRole(user.role)}>
+                    <LayoutDashboard className="h-4 w-4 text-brand" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile">
+                    <UserCog className="h-4 w-4 text-muted-foreground" />
+                    <span>Update Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/">
+                    <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+                    <span>Back to Home</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={signOut}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 

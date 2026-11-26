@@ -24,6 +24,12 @@ export function getDashboardPathByRole(role?: string): string {
   return "/dashboard/customer";
 }
 
+export function getPostAuthRedirectPath(role?: string): string {
+  if (role === "admin") return "/dashboard/admin";
+  if (role === "technician") return "/dashboard/technician";
+  return "/";
+}
+
 export function useAuthUser() {
   const router = useRouter();
   const { data: session, isPending, error, refetch } = authClient.useSession();

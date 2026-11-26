@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const DEMO_ACCOUNTS = [
   { label: "Customer", email: "customer@fixmate.app", pass: "Customer@1234" },
-  { label: "Technician", email: "tech1@fixmate.app", pass: "Tech@1234" },
+  { label: "Technician", email: "tech3@fixmate.app", pass: "Tech@1234" },
   { label: "Admin", email: "admin@fixmate.app", pass: "Admin@1234" },
 ] as const;
 
