@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -54,6 +55,7 @@ export default function RootLayout({
             }}
           />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
