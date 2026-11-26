@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import type { UserRole } from "@/lib/constants";
@@ -31,8 +30,13 @@ export function getPostAuthRedirectPath(role?: string): string {
 }
 
 export function useAuthUser() {
-  const router = useRouter();
-  const { data: session, isPending, error, refetch } = authClient.useSession();
+  const {
+    data: session,
+    isPending,
+    isRefetching,
+    error,
+    refetch,
+  } = authClient.useSession();
 
   const rawUser = session?.user as
     | (Record<string, unknown> & {
@@ -84,14 +88,13 @@ export function useAuthUser() {
   const signOut = async () => {
     await authClient.signOut();
     toast.success("Signed out successfully.");
-    router.push("/");
-    router.refresh();
+    window.location.assign("/");
   };
 
   return {
     user,
     session,
-    isPending,
+    isPending: isPending || isRefetching,
     error,
     refetch,
     signOut,

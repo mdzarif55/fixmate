@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -30,7 +30,6 @@ const signInSchema = z.object({
 type SignInValues = z.infer<typeof signInSchema>;
 
 function SignInFormInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = React.useState(false);
   const [googleLoading, setGoogleLoading] = React.useState(false);
@@ -61,14 +60,9 @@ function SignInFormInner() {
 
       const safeCallback =
         callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : null;
-
-      if (safeCallback) {
-        router.push(safeCallback);
-      } else {
-        const userRole = (data?.user as { role?: string } | undefined)?.role;
-        router.push(getPostAuthRedirectPath(userRole));
-      }
-      router.refresh();
+      const userRole = (data?.user as { role?: string } | undefined)?.role;
+      const targetPath = safeCallback || getPostAuthRedirectPath(userRole);
+      window.location.assign(targetPath);
     } catch {
       toast.error("Unable to sign in. Please try again.");
     }

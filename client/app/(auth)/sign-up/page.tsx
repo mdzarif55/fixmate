@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2, User, Wrench } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -36,7 +36,6 @@ const signUpSchema = z.object({
 type SignUpValues = z.infer<typeof signUpSchema>;
 
 function SignUpFormInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = React.useState(false);
   const [googleLoading, setGoogleLoading] = React.useState(false);
@@ -74,8 +73,8 @@ function SignUpFormInner() {
       toast.success("Account created! Welcome to FixMate.");
       const safeCallback =
         callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : null;
-      router.push(safeCallback || getPostAuthRedirectPath(values.role));
-      router.refresh();
+      const targetPath = safeCallback || getPostAuthRedirectPath(values.role);
+      window.location.assign(targetPath);
     } catch {
       toast.error("Sign up failed. Please try again.");
     }
