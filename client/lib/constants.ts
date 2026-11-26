@@ -39,6 +39,7 @@ export const SORT_OPTIONS = [
 ] as const;
 
 export const FREE_TECHNICIAN_SERVICE_LIMIT = 3;
+export const PRO_PLAN_PRICE_USD = 50;
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";

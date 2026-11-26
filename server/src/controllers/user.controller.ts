@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import * as paymentService from "../services/payment.service.js";
 import * as userService from "../services/user.service.js";
 import { sendSuccess } from "../utils/responses.js";
 
@@ -19,14 +20,38 @@ export async function updateProfile(
   }
 }
 
-export async function upgradePro(
+export async function createProCheckoutSession(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const result = await userService.upgradeTechnicianToPro(req.user!);
-    return sendSuccess(res, result, "Upgraded to FixMate Pro!");
+    const session = await paymentService.createProUpgradeCheckoutSession(
+      req.user!
+    );
+    return sendSuccess(res, session, "Pro upgrade checkout session created.");
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verifyProCheckoutSession(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const sessionId =
+      typeof req.query.session_id === "string" ? req.query.session_id : "";
+    const result = await paymentService.verifyProUpgradeSessionForTechnician(
+      sessionId,
+      req.user!.email
+    );
+    return sendSuccess(
+      res,
+      result,
+      "Pro Technician plan activated successfully!"
+    );
   } catch (error) {
     next(error);
   }

@@ -14,10 +14,16 @@ router.patch(
   userController.updateProfile
 );
 router.post(
-  "/pro-upgrade",
+  "/pro-checkout-session",
   verifyToken,
   verifyTechnician,
-  userController.upgradePro
+  userController.createProCheckoutSession
+);
+router.get(
+  "/pro-verify-session",
+  verifyToken,
+  verifyTechnician,
+  userController.verifyProCheckoutSession
 );
 
 export default router;

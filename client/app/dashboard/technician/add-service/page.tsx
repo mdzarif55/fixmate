@@ -85,9 +85,18 @@ export default function AddServicePage() {
       toast.success("Your service has been submitted for admin approval.");
       router.push("/dashboard/technician/my-services");
     } catch (err) {
-      toast.error(
-        err instanceof ApiError ? err.message : "Could not create service."
-      );
+      if (err instanceof ApiError && err.status === 403) {
+        toast.error(err.message, {
+          action: {
+            label: "Upgrade ($50)",
+            onClick: () => router.push("/dashboard/technician"),
+          },
+        });
+      } else {
+        toast.error(
+          err instanceof ApiError ? err.message : "Could not create service."
+        );
+      }
     }
   };
 

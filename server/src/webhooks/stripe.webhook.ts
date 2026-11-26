@@ -2,7 +2,10 @@ import type { Request, Response } from "express";
 import type Stripe from "stripe";
 import { env } from "../config/env.js";
 import { getStripe } from "../config/stripe.js";
-import { finalizePaidBookingFromSession } from "../services/payment.service.js";
+import {
+  finalizePaidBookingFromSession,
+  finalizeProUpgradeFromSession,
+} from "../services/payment.service.js";
 
 export async function handleStripeWebhook(req: Request, res: Response) {
   const signature = req.headers["stripe-signature"];
@@ -39,7 +42,11 @@ export async function handleStripeWebhook(req: Request, res: Response) {
     ) {
       const session = event.data.object as Stripe.Checkout.Session;
       if (session.payment_status === "paid") {
-        await finalizePaidBookingFromSession(session);
+        if (session.metadata?.type === "pro_upgrade") {
+          await finalizeProUpgradeFromSession(session);
+        } else {
+          await finalizePaidBookingFromSession(session);
+        }
       }
     }
 

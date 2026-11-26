@@ -238,7 +238,7 @@ const DEMO_SERVICES: SeedServiceSpec[] = [
     estimatedDuration: "1.5 hours",
     serviceMode: "Home Visit",
     serviceArea: "Round Rock & North Austin",
-    technicianEmail: "tech3@fixmate.app",
+    technicianEmail: "tech1@fixmate.app",
     approvalStatus: "approved",
   },
   {
@@ -294,7 +294,7 @@ const DEMO_SERVICES: SeedServiceSpec[] = [
     estimatedDuration: "1 hour",
     serviceMode: "Home Visit",
     serviceArea: "Austin & Round Rock",
-    technicianEmail: "tech3@fixmate.app",
+    technicianEmail: "tech1@fixmate.app",
     approvalStatus: "pending",
   },
 ];

@@ -5,7 +5,14 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function PaymentCancelPage() {
+export default async function PaymentCancelPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const { type } = await searchParams;
+  const isProUpgrade = type === "pro_upgrade";
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Navbar />
@@ -20,14 +27,20 @@ export default function PaymentCancelPage() {
                 Payment cancelled.
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                No charges were made and nothing changed in your booking. You
-                can return to your bookings and retry payment whenever you are
-                ready.
+                {isProUpgrade
+                  ? "No charges were made and your account remains on the Free plan. You can upgrade to FixMate Pro ($50 USD) anytime from your dashboard."
+                  : "No charges were made and nothing changed in your booking. You can return to your bookings and retry payment whenever you are ready."}
               </p>
             </div>
             <div className="flex justify-center gap-3 pt-2">
               <Button asChild>
-                <Link href="/dashboard/customer/bookings">
+                <Link
+                  href={
+                    isProUpgrade
+                      ? "/dashboard/technician"
+                      : "/dashboard/customer/bookings"
+                  }
+                >
                   <RotateCcw className="h-4 w-4" />
                   <span>Try Again</span>
                 </Link>

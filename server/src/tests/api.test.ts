@@ -11,7 +11,10 @@ import {
   setTestDatabase,
   usersCollection,
 } from "../database/mongo.js";
-import { finalizePaidBookingFromSession } from "../services/payment.service.js";
+import {
+  finalizePaidBookingFromSession,
+  finalizeProUpgradeFromSession,
+} from "../services/payment.service.js";
 
 describe("FixMate Backend API & Security Integration Tests", () => {
   let mongod: MongoMemoryServer;
@@ -391,5 +394,41 @@ describe("FixMate Backend API & Security Integration Tests", () => {
       });
     expect(profileRes.status).toBe(200);
     expect(profileRes.body.data.name).toBe("Bob Vance Updated");
+  });
+
+  it("upgrades technician to Pro via verified Stripe $50 session idempotently and unlocks unlimited services", async () => {
+    const proSession = {
+      id: "cs_test_pro_upgrade_001",
+      payment_status: "paid",
+      payment_intent: "pi_test_pro_upgrade_001",
+      metadata: {
+        type: "pro_upgrade",
+        technicianEmail: "bob@fixmate.app",
+        technicianName: "Bob Vance Updated",
+      },
+    } as never;
+
+    const u1 = await finalizeProUpgradeFromSession(proSession);
+    const u2 = await finalizeProUpgradeFromSession(proSession);
+    expect(u1.plan).toBe("pro");
+    expect(u1.payment.amount).toBe(50);
+    expect(String(u1.payment._id)).toBe(String(u2.payment._id));
+
+    // Previously blocked 4th service now succeeds
+    const create4 = await request(app)
+      .post("/api/services")
+      .set("Authorization", `Bearer ${techToken}`)
+      .send({
+        title: "Laptop Thermal Service Pro",
+        category: "Laptop & PC",
+        description:
+          "Complete laptop heatsink cleaning and thermal compound replacement.",
+        image: "https://i.ibb.co/demo/laptop.jpg",
+        basePrice: 85,
+        estimatedDuration: "1.5 hours",
+        serviceMode: "Shop Drop-off",
+        serviceArea: "Austin, TX",
+      });
+    expect(create4.status).toBe(201);
   });
 });

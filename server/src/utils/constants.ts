@@ -48,3 +48,4 @@ export const USER_ROLES = ["customer", "technician", "admin"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const FREE_TECHNICIAN_SERVICE_LIMIT = 3;
+export const PRO_PLAN_PRICE_USD = 50;

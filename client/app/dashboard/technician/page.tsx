@@ -21,12 +21,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { apiFetch, ApiError } from "@/lib/api";
-import { FREE_TECHNICIAN_SERVICE_LIMIT } from "@/lib/constants";
+import {
+  FREE_TECHNICIAN_SERVICE_LIMIT,
+  PRO_PLAN_PRICE_USD,
+} from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { BookingItem, ServiceItem } from "@/types";
 
 export default function TechnicianOverviewPage() {
-  const { user, refetch } = useAuthUser();
+  const { user } = useAuthUser();
   const [services, setServices] = React.useState<ServiceItem[]>([]);
   const [stats, setStats] = React.useState({
     totalServices: 0,
@@ -64,17 +67,25 @@ export default function TechnicianOverviewPage() {
   const handleUpgradePro = async () => {
     setUpgrading(true);
     try {
-      await apiFetch("/api/users/pro-upgrade", {
-        method: "POST",
-        auth: true,
-      });
-      await refetch();
-      toast.success("Upgraded to FixMate Pro! Unlimited services unlocked.");
+      const res = await apiFetch<{ url: string; sessionId: string }>(
+        "/api/users/pro-checkout-session",
+        {
+          method: "POST",
+          auth: true,
+        }
+      );
+      if (res.url) {
+        window.location.assign(res.url);
+      } else {
+        toast.error("Unable to open Stripe Checkout.");
+        setUpgrading(false);
+      }
     } catch (err) {
       toast.error(
-        err instanceof ApiError ? err.message : "Could not upgrade plan."
+        err instanceof ApiError
+          ? err.message
+          : "Could not start Stripe checkout."
       );
-    } finally {
       setUpgrading(false);
     }
   };
@@ -122,7 +133,7 @@ export default function TechnicianOverviewPage() {
             <p className="text-sm font-medium text-foreground">
               {isPro
                 ? "Your technician profile and listings carry the Verified Pro badge."
-                : "Upgrade to FixMate Pro for unlimited service listings and a Verified Pro badge."}
+                : `Upgrade to FixMate Pro for $${PRO_PLAN_PRICE_USD} USD (one-time via Stripe) to unlock unlimited service listings and a Verified Pro badge.`}
             </p>
           </div>
           {!isPro ? (
@@ -132,7 +143,11 @@ export default function TechnicianOverviewPage() {
               disabled={upgrading}
             >
               <Sparkles className="h-4 w-4" />
-              <span>{upgrading ? "Upgrading..." : "Activate Pro Plan"}</span>
+              <span>
+                {upgrading
+                  ? "Redirecting to Stripe..."
+                  : `Upgrade to Pro ($${PRO_PLAN_PRICE_USD} USD)`}
+              </span>
             </Button>
           ) : null}
         </CardContent>
